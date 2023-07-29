@@ -4,6 +4,7 @@
 :- dynamic turned_on/1.
 :- dynamic turned_off/1.
 :- dynamic door/3.
+:- dynamic loc_list/2.
 
 room(kitchen).
 room(office).
@@ -34,21 +35,14 @@ loc_list(['washing machine'], cellar).
 loc_list([nani], 'washing machine').
 loc_list([], hall).
 
+location(X, Y) :-
+    loc_list(List, Y), member(X, List).
 
-location(object(candle, red, small, 1), kitchen).
-location(object(apple, red, small, 1), kitchen).
-location(object(apple, green, small, 1), kitchen).
-location(object(table, blue, big, 50), kitchen).
-location(object(desk, brown, big, 50), office).
-location(object(flashlight, black, small, 1), object(desk, brown, big, 50)).
-location(object('washing machine', gray, big, 60), cellar).
-location(object(nani, yellow, small, 1), object('washing machine', gray, big, 60)).
-location(object(broccoli, green, small, 1), kitchen).
-location(object(crackers, yellow, small, 1), kitchen).
-location(object(computer, black, big, 15), office).
-location(object(envelope, white, small, 1), object(desk, brown, big, 50)).
-location(object(stamp, red, small, 1), object(envelope, white, small, 1)).
-location(object(key, gold, small, 1), object(envelope, white, small, 1)).
+member(X, [X|_]).
+member(X, [_|T]) :- member(X, T).
+
+append([], X, X).
+append([H|T], X, [H|O]) :- append(T, X, O).
 
 door(office, hall, closed).
 door(kitchen, office, closed).
@@ -118,6 +112,10 @@ move(Place) :-
 take(X) :-
     can_take(X),
     take_object(X).
+
+put_thing(Thing, Place) :-
+    retract(loc_list(List, Place)),
+    asserta(loc_list([Thing|List], Place)).
 
 put(Thing) :-
     have(Thing),
